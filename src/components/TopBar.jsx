@@ -1,6 +1,4 @@
-import { LogOut, User } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
-import { Button } from '@/components/ui/button';
+import { User } from 'lucide-react';
 
 export default function TopBar({ user, boardName }) {
   return (
@@ -17,14 +15,6 @@ export default function TopBar({ user, boardName }) {
             {user?.full_name || user?.email || 'User'}
           </span>
         </div>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => base44.auth.logout()}
-          className="text-muted-foreground hover:text-destructive"
-        >
-          <LogOut className="w-4 h-4" />
-        </Button>
       </div>
     </div>
   );

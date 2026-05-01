@@ -12,17 +12,13 @@ import BoardModal from '@/components/BoardModal';
 
 export default function BoardPage() {
   const qc = useQueryClient();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState({ email: 'demo@example.com', full_name: 'Demo User' });
   const [currentBoardId, setCurrentBoardId] = useState(null);
   const [taskModal, setTaskModal] = useState({ open: false, task: null, defaultColumn: null });
   const [boardModal, setBoardModal] = useState({ open: false, board: null });
   const [selectedDate, setSelectedDate] = useState(null);
 
-  useEffect(() => {
-    base44.auth.me().then(u => {
-      setUser(u);
-    });
-  }, []);
+  // No need for auth check anymore
 
   // Fetch boards
   const { data: boards = [] } = useQuery({
@@ -76,7 +72,19 @@ export default function BoardPage() {
   // Create board
   const createBoard = useMutation({
     mutationFn: data => base44.entities.Board.create({ ...data, owner_email: user?.email }),
-    onSuccess: (b) => { qc.invalidateQueries({ queryKey: ['boards', user?.email] }); setCurrentBoardId(b.id); toast.success('Board created!'); }
+    onSuccess: (b) => {
+      console.log('Board created:', b);
+      qc.invalidateQueries({ queryKey: ['boards', user?.email] });
+      setCurrentBoardId(b.id);
+      toast.success('Board created!');
+    },
+    onError: (error) => {
+      console.error('Board creation failed - Full error:', error);
+      console.error('Error message:', error?.message);
+      console.error('Error response:', error?.response);
+      console.error('Error data:', error?.data);
+      toast.error(`Failed to create board: ${error?.message || 'Unknown error'}`);
+    }
   });
 
   // Update board
@@ -104,11 +112,15 @@ export default function BoardPage() {
   };
 
   const handleBoardSave = (form) => {
+    console.log('Saving board:', form);
     if (boardModal.board) {
+      console.log('Updating existing board:', boardModal.board.id);
       updateBoard.mutate({ id: boardModal.board.id, data: form });
     } else {
+      console.log('Creating new board');
       createBoard.mutate(form);
     }
+    setBoardModal({ open: false, board: null });
   };
 
   const handleDropOnColumn = (taskId, column) => {

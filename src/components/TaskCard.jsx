@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pencil, Trash2, Calendar, Flag } from 'lucide-react';
+import { Pencil, Trash2, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 
 const colorMap = {
